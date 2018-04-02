@@ -1,5 +1,5 @@
--- | Datalayout
-module LLVM.DataLayout (
+-- | Data layout utils
+module LLVM.DataLayoutUtils (
     getTypeAllocSize
   ) where
 
