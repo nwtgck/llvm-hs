@@ -21,7 +21,7 @@ import qualified LLVM.AST.Global as G
 import LLVM.Internal.Coding
 import LLVM.Internal.DataLayout
 import LLVM.Internal.EncodeAST
-import LLVM.Internal.FFI.DataLayout (getTypeAllocSize)
+import LLVM.Internal.DataLayout
 
 m s = "; ModuleID = '<string>'\nsource_filename = \"<string>\"\n" <> s
 t s = "target datalayout = \"" <> s <> "\"\n"
@@ -29,17 +29,17 @@ ddl = defaultDataLayout BigEndian
 
 tests = testGroup "DataLayout" $
   testCase "getTypeAllocSize" (withContext $ \ctx -> runEncodeAST ctx $ do
-    ty <- encodeM (IntegerType 8)
+    let ty = IntegerType 8
     liftIO $ do
       size <-
-        withFFIDataLayout
+        getTypeAllocSize 
           (ddl { typeLayouts = Map.singleton (IntegerAlign, 8) (AlignmentInfo 8 8) })
-          (\dl -> getTypeAllocSize dl ty)
+          ty
       size @?= 1
       size <-
-        withFFIDataLayout
+        getTypeAllocSize
           (ddl { typeLayouts = Map.singleton (IntegerAlign, 8) (AlignmentInfo 32 32) })
-          (\dl -> getTypeAllocSize dl ty)
+          ty
       size @?= 4)
   :
   [
